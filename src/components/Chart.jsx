@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { createChart, ColorType } from 'lightweight-charts';
+import { createChart, ColorType, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts';
 
 export function CandleChart({ candles, height = 500, overlays = {} }) {
   const containerRef = useRef(null);
@@ -34,7 +34,7 @@ export function CandleChart({ candles, height = 500, overlays = {} }) {
     });
 
     // Candlestick series
-    const candleSeries = chart.addCandlestickSeries({
+    const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: '#6ee7b7',
       downColor: '#fca5a5',
       borderVisible: false,
@@ -52,7 +52,7 @@ export function CandleChart({ candles, height = 500, overlays = {} }) {
     candleSeries.setData(candleData);
 
     // Volume
-    const volumeSeries = chart.addHistogramSeries({
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       priceFormat: { type: 'volume' },
       priceScaleId: 'volume',
     });
@@ -73,7 +73,7 @@ export function CandleChart({ candles, height = 500, overlays = {} }) {
     const smaColors = { sma20: '#c4b5fd', sma50: '#f59e0b', sma200: '#ef4444' };
     for (const [key, color] of Object.entries(smaColors)) {
       if (overlays[key]) {
-        const series = chart.addLineSeries({
+        const series = chart.addSeries(LineSeries, {
           color,
           lineWidth: 1,
           priceLineVisible: false,
@@ -89,8 +89,8 @@ export function CandleChart({ candles, height = 500, overlays = {} }) {
 
     // Bollinger Bands
     if (overlays.bbUpper && overlays.bbLower) {
-      for (const [key, arr] of [['bbUpper', overlays.bbUpper], ['bbLower', overlays.bbLower]]) {
-        const series = chart.addLineSeries({
+      for (const [, arr] of [['bbUpper', overlays.bbUpper], ['bbLower', overlays.bbLower]]) {
+        const series = chart.addSeries(LineSeries, {
           color: 'rgba(139, 92, 246, 0.3)',
           lineWidth: 1,
           lineStyle: 2,
@@ -136,7 +136,7 @@ export function CandleChart({ candles, height = 500, overlays = {} }) {
 }
 
 // Sub-chart for RSI / MACD
-export function IndicatorChart({ data, height = 120, color = '#c4b5fd', type = 'line', timestamps, zones }) {
+export function IndicatorChart({ data, height = 120, color = '#c4b5fd', type = 'line', timestamps }) {
   const containerRef = useRef(null);
   const [chartError, setChartError] = useState(null);
 
@@ -169,7 +169,7 @@ export function IndicatorChart({ data, height = 120, color = '#c4b5fd', type = '
     });
 
     if (type === 'histogram') {
-      const series = chart.addHistogramSeries({
+      const series = chart.addSeries(HistogramSeries, {
         color,
         priceLineVisible: false,
         lastValueVisible: false,
@@ -179,7 +179,7 @@ export function IndicatorChart({ data, height = 120, color = '#c4b5fd', type = '
         .filter(Boolean);
       series.setData(lineData);
     } else {
-      const series = chart.addLineSeries({
+      const series = chart.addSeries(LineSeries, {
         color,
         lineWidth: 1.5,
         priceLineVisible: false,
