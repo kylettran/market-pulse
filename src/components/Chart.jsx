@@ -1,13 +1,17 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { createChart, ColorType } from 'lightweight-charts';
 
 export function CandleChart({ candles, height = 500, overlays = {} }) {
   const containerRef = useRef(null);
+  const [chartError, setChartError] = useState(null);
 
   useEffect(() => {
     if (!containerRef.current || !candles || !candles.t?.length) return;
+    setChartError(null);
+    let chart;
+    try {
 
-    const chart = createChart(containerRef.current, {
+    chart = createChart(containerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#6b6685',
@@ -114,19 +118,35 @@ export function CandleChart({ candles, height = 500, overlays = {} }) {
       window.removeEventListener('resize', handleResize);
       chart.remove();
     };
+    } catch (err) {
+      console.error('CandleChart error:', err);
+      setChartError(err.message);
+      if (chart) { try { chart.remove(); } catch {} }
+    }
   }, [candles, overlays, height]);
 
+  if (chartError) {
+    return (
+      <div className="w-full flex items-center justify-center text-text-muted text-sm" style={{ height }}>
+        Chart unavailable
+      </div>
+    );
+  }
   return <div ref={containerRef} className="w-full" />;
 }
 
 // Sub-chart for RSI / MACD
 export function IndicatorChart({ data, height = 120, color = '#c4b5fd', type = 'line', timestamps, zones }) {
   const containerRef = useRef(null);
+  const [chartError, setChartError] = useState(null);
 
   useEffect(() => {
     if (!containerRef.current || !data?.length || !timestamps?.length) return;
+    setChartError(null);
+    let chart;
+    try {
 
-    const chart = createChart(containerRef.current, {
+    chart = createChart(containerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#6b6685',
@@ -184,7 +204,19 @@ export function IndicatorChart({ data, height = 120, color = '#c4b5fd', type = '
       window.removeEventListener('resize', handleResize);
       chart.remove();
     };
+    } catch (err) {
+      console.error('IndicatorChart error:', err);
+      setChartError(err.message);
+      if (chart) { try { chart.remove(); } catch {} }
+    }
   }, [data, timestamps, color, type, height]);
 
+  if (chartError) {
+    return (
+      <div className="w-full flex items-center justify-center text-text-muted text-xs" style={{ height }}>
+        Indicator unavailable
+      </div>
+    );
+  }
   return <div ref={containerRef} className="w-full" />;
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, Component } from 'react';
 import { useApp } from './store';
 import { isDemoMode } from './api';
 import { Sidebar } from './components/Sidebar';
@@ -7,6 +7,39 @@ import { StockView } from './components/StockView';
 import { WatchlistView } from './components/Watchlist';
 import { NewsFeed } from './components/News';
 import { SearchModal } from './components/Search';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('View crashed:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
+          <div className="w-12 h-12 rounded-xl bg-loss-bg flex items-center justify-center mb-4">
+            <span className="text-loss text-2xl">!</span>
+          </div>
+          <h2 className="text-text-primary font-semibold mb-2">Something went wrong</h2>
+          <p className="text-text-muted text-sm mb-4">This view ran into an error. Try navigating to another section.</p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="px-4 py-2 rounded-lg bg-accent/10 text-accent text-sm hover:bg-accent/20 transition-colors cursor-pointer"
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function DemoBanner() {
   return (
@@ -28,13 +61,15 @@ function DemoBanner() {
 
 function ViewContent() {
   const { state } = useApp();
+  let view;
   switch (state.activeView) {
-    case 'dashboard': return <Dashboard />;
-    case 'stock': return <StockView />;
-    case 'watchlist': return <WatchlistView />;
-    case 'news': return <NewsFeed />;
-    default: return <Dashboard />;
+    case 'dashboard': view = <Dashboard />; break;
+    case 'stock': view = <StockView />; break;
+    case 'watchlist': view = <WatchlistView />; break;
+    case 'news': view = <NewsFeed />; break;
+    default: view = <Dashboard />;
   }
+  return <ErrorBoundary key={state.activeView}>{view}</ErrorBoundary>;
 }
 
 export default function App() {

@@ -243,7 +243,7 @@ export function StockView() {
       </div>
 
       {/* Company News */}
-      {news.length > 0 && (
+      {(news?.length > 0) && (
         <div>
           <h3 className="text-sm font-semibold text-text-primary mb-3">Latest News</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
