@@ -6,27 +6,27 @@ import { formatPrice, formatPercent, formatChange } from '../utils';
 import { Sparkline } from './Sparkline';
 
 const INDICES = [
-  { symbol: 'SPY', name: 'S&P 500' },
-  { symbol: 'QQQ', name: 'NASDAQ 100' },
+  { symbol: 'SPX', name: 'S&P 500' },
+  { symbol: 'NDX', name: 'NASDAQ 100' },
   { symbol: 'DIA', name: 'Dow Jones' },
   { symbol: 'IWM', name: 'Russell 2000' },
 ];
 
 const SECTORS = [
-  { symbol: 'XLK', name: 'Technology' },
-  { symbol: 'XLF', name: 'Financials' },
-  { symbol: 'XLV', name: 'Healthcare' },
-  { symbol: 'XLE', name: 'Energy' },
-  { symbol: 'XLY', name: 'Consumer Disc.' },
-  { symbol: 'XLP', name: 'Consumer Staples' },
-  { symbol: 'XLI', name: 'Industrials' },
-  { symbol: 'XLB', name: 'Materials' },
+  { symbol: 'XLP',  name: 'Consumer Staples' },
+  { symbol: 'XLY',  name: 'Consumer Disc.' },
+  { symbol: 'XLV',  name: 'Healthcare' },
+  { symbol: 'XLI',  name: 'Industrials' },
+  { symbol: 'XLE',  name: 'Energy' },
+  { symbol: 'XLF',  name: 'Financials' },
+  { symbol: 'XLK',  name: 'Technology' },
+  { symbol: 'XLU',  name: 'Utilities' },
+  { symbol: 'XLB',  name: 'Materials' },
   { symbol: 'XLRE', name: 'Real Estate' },
-  { symbol: 'XLU', name: 'Utilities' },
-  { symbol: 'XLC', name: 'Communication' },
+  { symbol: 'XLC',  name: 'Communication' },
 ];
 
-const MOVERS = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA', 'AMZN', 'META', 'JPM'];
+const MAG7 = ['GOOGL', 'AMZN', 'AAPL', 'NVDA', 'TSLA', 'META', 'MSFT'];
 
 export function Dashboard() {
   const { dispatch } = useApp();
@@ -40,7 +40,7 @@ export function Dashboard() {
       const allSymbols = [
         ...INDICES.map(i => i.symbol),
         ...SECTORS.map(s => s.symbol),
-        ...MOVERS,
+        ...MAG7,
       ];
       const unique = [...new Set(allSymbols)];
       const q = await getQuotes(unique);
@@ -62,13 +62,13 @@ export function Dashboard() {
   }, []);
 
   const { gainers, losers } = useMemo(() => {
-    const moversWithData = MOVERS
+    const withData = MAG7
       .map(s => ({ symbol: s, ...quotes[s] }))
       .filter(m => m.c);
-    const sorted = [...moversWithData].sort((a, b) => (b.dp || 0) - (a.dp || 0));
+    const sorted = [...withData].sort((a, b) => (b.dp || 0) - (a.dp || 0));
     return {
-      gainers: sorted.filter(m => (m.dp || 0) >= 0).slice(0, 5),
-      losers: sorted.filter(m => (m.dp || 0) < 0).slice(0, 5),
+      gainers: sorted.filter(m => (m.dp || 0) >= 0).slice(0, 4),
+      losers:  sorted.filter(m => (m.dp || 0) < 0).slice(0, 4),
     };
   }, [quotes]);
 
@@ -176,7 +176,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Sector Performance + Market Movers */}
+      {/* Sector Performance + Magnificent 7 */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Sectors */}
         <div className="xl:col-span-2 bg-bg-card/60 backdrop-blur-sm border border-border rounded-xl p-5">
@@ -201,15 +201,14 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Market Movers */}
+        {/* Magnificent 7 */}
         <div className="bg-bg-card/60 backdrop-blur-sm border border-border rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-text-primary mb-4">Market Movers</h2>
+          <h2 className="text-sm font-semibold text-text-primary mb-4">Magnificent 7</h2>
 
-          {/* Gainers */}
           <div className="mb-4">
             <div className="flex items-center gap-1.5 mb-2">
               <ArrowUpRight size={12} className="text-gain" />
-              <span className="text-xs text-text-muted font-medium">Top Gainers</span>
+              <span className="text-xs text-text-muted font-medium">Leaders</span>
             </div>
             <div className="space-y-1">
               {gainers.map(m => (
@@ -230,11 +229,10 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Losers */}
           <div>
             <div className="flex items-center gap-1.5 mb-2">
               <ArrowDownRight size={12} className="text-loss" />
-              <span className="text-xs text-text-muted font-medium">Top Losers</span>
+              <span className="text-xs text-text-muted font-medium">Laggards</span>
             </div>
             <div className="space-y-1">
               {losers.map(m => (
@@ -254,6 +252,30 @@ export function Dashboard() {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Magnificent 7 — full row for quick access */}
+      <div className="bg-bg-card/60 backdrop-blur-sm border border-border rounded-xl p-5">
+        <h2 className="text-sm font-semibold text-text-primary mb-4">Magnificent 7 — Quick Access</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          {MAG7.map(symbol => {
+            const q = quotes[symbol];
+            const isUp = (q?.dp || 0) >= 0;
+            return (
+              <button
+                key={symbol}
+                onClick={() => selectStock(symbol)}
+                className="flex flex-col items-center gap-1 p-3 rounded-xl bg-bg-surface/50 hover:bg-bg-surface border border-transparent hover:border-border transition-all cursor-pointer"
+              >
+                <span className="text-text-primary text-xs font-bold">{symbol}</span>
+                <span className="text-text-secondary text-xs">{q ? formatPrice(q.c) : '—'}</span>
+                <span className={`text-xs font-semibold ${isUp ? 'text-gain' : 'text-loss'}`}>
+                  {q ? formatPercent(q.dp) : '—'}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

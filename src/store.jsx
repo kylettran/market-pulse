@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer } from 'react';
 
-const DEFAULT_WATCHLIST = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA', 'AMZN'];
+const DEFAULT_WATCHLIST = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META'];
 
 const initialState = {
   activeView: 'dashboard',
