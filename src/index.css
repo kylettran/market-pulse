@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #09090b;
+  --color-bg-surface: #12111a;
+  --color-bg-card: #1a1825;
+  --color-border: #2a2639;
+  --color-border-light: #352f4a;
+  --color-accent: #c4b5fd;
+  --color-accent-deep: #8b5cf6;
+  --color-accent-glow: rgba(196, 181, 253, 0.1);
+  --color-gain: #6ee7b7;
+  --color-gain-bg: rgba(110, 231, 183, 0.1);
+  --color-loss: #fca5a5;
+  --color-loss-bg: rgba(252, 165, 165, 0.1);
+  --color-text-primary: #f0eef6;
+  --color-text-secondary: #a09cb5;
+  --color-text-muted: #6b6685;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #09090b;
+  color: #f0eef6;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2639;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #352f4a;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #1a1825 25%, #2a2639 50%, #1a1825 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(196, 181, 253, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(196, 181, 253, 0.3); }
+}
